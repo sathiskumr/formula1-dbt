@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+logs/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Local Databricks credentials -- never commit
+set-env.sh
+
+# dbt run artifacts (only ever land here if dbt is invoked from repo root
+# instead of from formula1/ -- formula1/.gitignore covers the normal case)
+logs/
+target/
+
+dbt_packages/
