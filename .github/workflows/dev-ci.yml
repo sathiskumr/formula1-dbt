@@ -1,0 +1,33 @@
+name: Dev CI (build on PR)
+
+on:
+  pull_request:
+    branches: [ "**" ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: dbt build (dev)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DBT_DATABRICKS_HOST:      "${{ secrets.DBT_DATABRICKS_HOST }}"
+      DBT_DATABRICKS_HTTP_PATH: "${{ secrets.DBT_DATABRICKS_HTTP_PATH }}"
+      DBT_DATABRICKS_TOKEN:     "${{ secrets.DBT_DATABRICKS_TOKEN }}"
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
+      - run: uv python install 3.12
+      - run: uv sync
+      - run: cd formula1 && uv run dbt deps --profiles-dir _prod_profiles --target dev
+      - name: dbt build
+        run: cd formula1 && uv run dbt build --profiles-dir _prod_profiles --target dev

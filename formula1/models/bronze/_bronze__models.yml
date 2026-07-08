@@ -1,0 +1,8 @@
+version: 2
+
+models:
+  - name: bronze_drivers
+    columns:
+      - name: driverId
+        data_tests:
+          - not_null
