@@ -38,11 +38,4 @@ jobs:
       - run: uv sync
       - run: cd formula1 && uv run dbt deps --profiles-dir _prod_profiles --target prod
       - name: dbt build
-        run: |
-          cd formula1
-          BATCH_ID="${{ github.event.inputs.batch_id }}"
-          if [ -n "$BATCH_ID" ]; then
-            uv run dbt build --profiles-dir _prod_profiles --target prod --vars "{\"batch_id\": \"$BATCH_ID\"}"
-          else
-            uv run dbt build --profiles-dir _prod_profiles --target prod
-          fi
+        run: cd formula1 && uv run dbt build --profiles-dir _prod_profiles --target prod
