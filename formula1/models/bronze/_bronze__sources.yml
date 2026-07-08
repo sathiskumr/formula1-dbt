@@ -1,0 +1,25 @@
+sources:
+  - name: bronze
+    description: >
+      Schema is per-source-file, untouched except for
+      ingestion metadata columns (ingestion_timestamp, source_file, batch_id).
+      This is the deep-cloned bronze schema that already exists in both
+      formula1_dbt_dev and formula1_dbt_prod -- dbt never writes to it,
+      only reads it here via source().
+    schema: bronze
+
+    loaded_at_field: ingestion_timestamp
+
+    freshness:
+      warn_after: {count: 6, period: day}
+      error_after: {count: 30, period: day}
+
+    tables:
+      - name: drivers
+        description: One row per driver. Source file drivers.json.
+        columns:
+          - name: driverId
+          - name: name
+          - name: dateOfBirth
+          - name: nationality
+          - name: batch_id

@@ -1,0 +1,48 @@
+name: Prod deploy (on merge to main / manual)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      batch_id:
+        description: >
+          Optional: reprocess one specific batch (e.g. for a data fix).
+          Leave blank for normal runs -- dbt picks up whatever's new on
+          its own.
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prod-deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: dbt build (prod)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DBT_DATABRICKS_HOST:       "${{ secrets.DBT_DATABRICKS_HOST }}"
+      DBT_DATABRICKS_HTTP_PATH:  "${{ secrets.DBT_DATABRICKS_HTTP_PATH }}"
+      DBT_DATABRICKS_PROD_TOKEN: "${{ secrets.DBT_DATABRICKS_PROD_TOKEN }}"
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
+      - run: uv python install 3.12
+      - run: uv sync
+      - run: cd formula1 && uv run dbt deps --profiles-dir _prod_profiles --target prod
+      - name: dbt build
+        run: |
+          cd formula1
+          BATCH_ID="${{ github.event.inputs.batch_id }}"
+          if [ -n "$BATCH_ID" ]; then
+            uv run dbt build --profiles-dir _prod_profiles --target prod --vars "{\"batch_id\": \"$BATCH_ID\"}"
+          else
+            uv run dbt build --profiles-dir _prod_profiles --target prod
+          fi

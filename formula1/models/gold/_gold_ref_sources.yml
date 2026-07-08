@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+  - name: gold_reference
+    description: >
+      Static, reference tables (nationality->region mapping,
+      constructor color codes, country flags, driver codes) built once by the
+      one-time scripts in 01-setup/91-94. Deliberately NOT dbt seeds: they are
+      not re-loaded on every run, and they're not part of the regular
+      dbt build lifecycle. Declared as a source here purely so gold models
+      get DAG/lineage visibility into them via source() instead of a hardcoded
+      table reference.
+
+    schema: gold
+    tables:
+      - name: ref_nationality_region
+        description: Manually curated nationality -> region mapping.
+      - name: ref_constructor_color_code
+        description: Constructor brand colors + logo asset URLs.
+      - name: ref_country_image
+        description: Country flag image URLs by country name.
+      - name: ref_driver_code
+        description: driver_id -> FIA three-letter driver code mapping.
