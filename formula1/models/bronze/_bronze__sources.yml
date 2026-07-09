@@ -32,3 +32,15 @@ sources:
           - name: name
           - name: nationality
           - name: batch_id
+
+      - name: circuits
+        description: One row per circuit. Source file circuits.csv.
+        columns:
+          - name: circuitId
+            description: Natural key for circuit, e.g. 'monza'.
+          - name: circuitName
+          - name: lat
+          - name: long
+          - name: locality
+          - name: country
+          - name: batch_id
