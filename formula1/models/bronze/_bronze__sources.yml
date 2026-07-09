@@ -54,3 +54,12 @@ sources:
           - name: date
           - name: circuitId
           - name: batch_id
+
+      - name: results
+        description: One row per driver per race (race session results).
+        columns:
+          - name: season
+          - name: round
+          - name: constructorId
+          - name: driverId
+          - name: batch_id
