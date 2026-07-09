@@ -2,10 +2,6 @@ models:
   - name: silver_drivers
     description: One row per driver, with concatenated full name.
 
-    # Model contract: on Databricks/Delta this compiles column constraints
-    # (see below) into real NOT NULL / CHECK constraints on the table itself,
-    # enforced at write time -- the closest dbt-native equivalent to the
-    # original notebook's apply_delta_constraints() helper.
     config:
       contract: {enforced: true}
 
@@ -41,6 +37,58 @@ models:
               arguments:
                 min_value: "'1900-01-01'"
                 max_value: "'{{ (modules.datetime.date.today() - modules.datetime.timedelta(days=15*365.25)) }}'"
+              config: {severity: warn}
+
+      - name: nationality
+        data_type: string
+        data_tests:
+          - not_null:
+              config: {severity: warn}
+
+      - name: ingestion_timestamp
+        data_type: timestamp
+
+      - name: source_file
+        data_type: string
+
+      - name: batch_id
+        data_type: string
+
+      - name: created_timestamp
+        data_type: timestamp
+
+      - name: updated_timestamp
+        data_type: timestamp
+
+  - name: silver_constructors
+    description: One row per constructor (team), cleansed and deduplicated.
+
+    config:
+      contract: {enforced: true}
+
+    data_tests:
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          arguments:
+            min_value: 1
+          config: {severity: warn}
+
+    columns:
+      - name: constructor_id
+        data_type: string
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null:
+              config: {severity: error}
+          - unique:
+              config: {severity: error}
+
+      - name: constructor_name
+        data_type: string
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null:
               config: {severity: warn}
 
       - name: nationality

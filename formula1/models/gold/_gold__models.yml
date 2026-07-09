@@ -3,10 +3,6 @@ models:
   - name: dim_drivers
     description: One row per driver, enriched with nationality region.
 
-    # Contract enforced project-wide (dbt_project.yml). Every returned
-    # column must be declared here with a data_type, or the build fails
-    # at execution time -- see silver/_silver__models.yml for the same
-    # pattern and why.
     config:
       contract: {enforced: true}
 
@@ -34,6 +30,49 @@ models:
 
       - name: nationality
         data_type: string
+        data_tests:
+          - not_null:
+              config: {severity: warn}
+
+      - name: nationality_region
+        data_type: string
+
+      - name: created_timestamp
+        data_type: timestamp
+
+      - name: updated_timestamp
+        data_type: timestamp
+
+  - name: dim_constructors
+    description: One row per constructor (team), cleansed and deduplicated.
+
+    config:
+      contract: {enforced: true}
+
+    columns:
+      - name: constructor_id
+        data_type: string
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null:
+              config: {severity: error}
+          - unique:
+              config: {severity: error}
+
+      - name: constructor_name
+        data_type: string
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null:
+              config: {severity: warn}
+
+      - name: nationality
+        data_type: string
+        data_tests:
+          - not_null:
+              config: {severity: warn}
 
       - name: nationality_region
         data_type: string

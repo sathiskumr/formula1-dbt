@@ -6,3 +6,9 @@ models:
       - name: driverId
         data_tests:
           - not_null
+
+  - name: bronze_constructors
+    columns:
+      - name: constructorId
+        data_tests:
+          - not_null
