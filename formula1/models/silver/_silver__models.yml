@@ -178,3 +178,73 @@ models:
 
       - name: updated_timestamp
         data_type: timestamp
+
+  
+  - name: silver_races
+    description: One row per season/round, joined-ready with circuit_id.
+
+    config:
+      contract: {enforced: true}
+
+    columns:
+      - name: season
+        data_type: int
+        data_tests:
+          - not_null:
+              config: {severity: error}
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1950
+              max_value: 2100
+              config: {severity: warn}
+
+      - name: round
+        data_type: int
+        data_tests:
+          - not_null:
+              config: {severity: error}
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+              max_value: 30
+              config: {severity: warn}
+
+      - name: race_name
+        data_type: string
+        data_tests:
+          - not_null:
+              config: {severity: warn}
+
+      - name: circuit_id
+        data_type: string
+        data_tests:
+          - not_null:
+              config: {severity: warn}
+          - relationships:
+              to: ref('silver_circuits')
+              field: circuit_id
+              config: {severity: warn}
+
+      - name: race_date
+        data_type: date
+        data_tests:
+          - not_null:
+              config: {severity: warn}
+
+      - name: ingestion_timestamp
+        data_type: timestamp
+
+      - name: source_file
+        data_type: string
+
+      - name: batch_id
+        data_type: string
+
+      - name: created_timestamp
+        data_type: timestamp
+
+      - name: updated_timestamp
+        data_type: timestamp
+
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [season, round]
+          config: {severity: error}

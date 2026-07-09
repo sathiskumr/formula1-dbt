@@ -44,3 +44,13 @@ sources:
           - name: locality
           - name: country
           - name: batch_id
+
+      - name: races
+        description: One row per season/round (race). Source file races.csv.
+        columns:
+          - name: season
+          - name: round
+          - name: raceName
+          - name: date
+          - name: circuitId
+          - name: batch_id
