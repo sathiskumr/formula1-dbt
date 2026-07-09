@@ -14,7 +14,7 @@
 
 with source as (
 
-    select * from {{ ref('silver_results') }}
+    select * from {{ ref('silver_sprints') }}
 
 ),
 

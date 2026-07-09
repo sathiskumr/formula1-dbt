@@ -63,3 +63,12 @@ sources:
           - name: constructorId
           - name: driverId
           - name: batch_id
+
+      - name: sprints
+        description: One row per driver per sprint session.
+        columns:
+          - name: season
+          - name: round
+          - name: constructorId
+          - name: driverId
+          - name: batch_id
