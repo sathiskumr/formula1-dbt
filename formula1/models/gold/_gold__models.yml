@@ -82,3 +82,51 @@ models:
 
       - name: updated_timestamp
         data_type: timestamp
+
+  - name: dim_races
+    description: Denormalized race dimension (race + circuit attributes), one row per season/round.
+
+    config:
+      contract: {enforced: true}
+    
+    columns:
+      - name: season
+        data_type: int
+        data_tests:
+          - not_null:
+              config: {severity: error}
+
+      - name: round
+        data_type: int
+        data_tests:
+          - not_null:
+              config: {severity: error}
+
+      - name: race_name
+        data_type: string
+
+      - name: race_date
+        data_type: date
+
+      - name: circuit_name
+        data_type: string
+        data_tests:
+          - not_null
+
+      - name: locality
+        data_type: string
+
+      - name: country
+        data_type: string
+        
+      - name: created_timestamp
+        data_type: timestamp
+
+      - name: updated_timestamp
+        data_type: timestamp
+
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [season, round]
+          config: {severity: error}

@@ -10,10 +10,17 @@
     )
 }}
 
+{% set max_batch_id = get_max_batch_id(this) if is_incremental() else none %}
 
 with source as (
 
     select * from {{ ref('bronze_races') }}
+
+    {% if var('batch_id', none) is not none %}
+    where batch_id = '{{ var("batch_id") }}'
+    {% elif max_batch_id is not none %}
+    where batch_id > '{{ max_batch_id }}'
+    {% endif %}
 
 ),
 

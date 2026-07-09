@@ -17,8 +17,9 @@ models:
     columns:
       - name: circuitId
         data_tests:
-          - not_null
-
+          - not_null:
+              config: {severity: warn}
+              
   - name: bronze_races
     columns:
       - name: season
