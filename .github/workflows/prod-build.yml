@@ -4,13 +4,6 @@ on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
-    inputs:
-      batch_id:
-        description: >
-          Optional: reprocess one specific batch (e.g. for a data fix).
-          Leave blank for normal runs -- dbt picks up whatever's new on
-          its own.
-        required: false
 
 permissions:
   contents: read

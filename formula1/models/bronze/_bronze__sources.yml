@@ -1,3 +1,4 @@
+
 sources:
   - name: bronze
     description: >
@@ -21,5 +22,13 @@ sources:
           - name: driverId
           - name: name
           - name: dateOfBirth
+          - name: nationality
+          - name: batch_id
+
+      - name: constructors
+        description: One row per constructor (team). Source file constructors.json.
+        columns:
+          - name: constructorId
+          - name: name
           - name: nationality
           - name: batch_id
