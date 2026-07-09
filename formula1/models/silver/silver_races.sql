@@ -1,10 +1,10 @@
 {{
     config(
-        alias='drivers',
-        unique_key='driver_id',
+        alias='races',
+        unique_key=['season', 'round'],
         incremental_strategy='merge',
         merge_update_columns=[
-            'driver_name', 'date_of_birth', 'nationality',
+            'race_name', 'race_date', 'circuit_id',
             'ingestion_timestamp', 'source_file', 'batch_id', 'updated_timestamp'
         ]
     )
@@ -14,7 +14,7 @@
 
 with source as (
 
-    select * from {{ ref('bronze_drivers') }}
+    select * from {{ ref('bronze_races') }}
 
     {% if var('batch_id', none) is not none %}
     where batch_id = '{{ var("batch_id") }}'
@@ -27,10 +27,11 @@ with source as (
 renamed as (
 
     select
-        driverId               as driver_id,
-        initcap(concat_ws(' ', name.givenName, name.familyName)) as driver_name,
-        dateOfBirth             as date_of_birth,
-        nationality,
+        season,
+        round,
+        raceName as race_name,
+        date     as race_date,
+        circuitId as circuit_id,
         ingestion_timestamp,
         source_file,
         batch_id
@@ -42,8 +43,8 @@ latest_results as (
     select
         *,
         row_number() over (
-            partition by driver_id
-            order by batch_id desc, ingestion_timestamp desc
+            partition by season, round
+            order by batch_id desc
         ) as rn
     from renamed
 ),
@@ -58,10 +59,11 @@ deduped as (
 final as (
 
     select
-        driver_id,
-        driver_name,
-        date_of_birth,
-        initcap(nationality)        as nationality,
+        season,
+        round,
+        initcap(race_name) as race_name,
+        race_date,
+        circuit_id,
         ingestion_timestamp,
         source_file,
         batch_id,

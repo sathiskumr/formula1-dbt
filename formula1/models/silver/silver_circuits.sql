@@ -1,10 +1,13 @@
+-- Silver: Drivers. See models/silver/_silver__models.yml for docs + tests.
+
 {{
     config(
-        alias='drivers',
-        unique_key='driver_id',
+        alias='circuits',
+        unique_key='circuit_id',
         incremental_strategy='merge',
         merge_update_columns=[
-            'driver_name', 'date_of_birth', 'nationality',
+
+            'circuit_name', 'latitude', 'longitude', 'locality', 'country',
             'ingestion_timestamp', 'source_file', 'batch_id', 'updated_timestamp'
         ]
     )
@@ -14,7 +17,7 @@
 
 with source as (
 
-    select * from {{ ref('bronze_drivers') }}
+    select * from {{ ref('bronze_circuits') }}
 
     {% if var('batch_id', none) is not none %}
     where batch_id = '{{ var("batch_id") }}'
@@ -27,10 +30,12 @@ with source as (
 renamed as (
 
     select
-        driverId               as driver_id,
-        initcap(concat_ws(' ', name.givenName, name.familyName)) as driver_name,
-        dateOfBirth             as date_of_birth,
-        nationality,
+        circuitId   as circuit_id,
+        circuitName as circuit_name,
+        lat         as latitude,
+        long        as longitude,
+        locality,
+        country,
         ingestion_timestamp,
         source_file,
         batch_id
@@ -38,14 +43,21 @@ renamed as (
 
 ),
 
+valid as (
+
+    select * from renamed
+    where circuit_id is not null
+
+),
+
 latest_results as (
     select
         *,
         row_number() over (
-            partition by driver_id
+            partition by circuit_id
             order by batch_id desc, ingestion_timestamp desc
         ) as rn
-    from renamed
+    from valid
 ),
 
 deduped as (
@@ -58,10 +70,12 @@ deduped as (
 final as (
 
     select
-        driver_id,
-        driver_name,
-        date_of_birth,
-        initcap(nationality)        as nationality,
+        circuit_id,
+        initcap(circuit_name) as circuit_name,
+        latitude,
+        longitude,
+        initcap(locality)     as locality,
+        country,
         ingestion_timestamp,
         source_file,
         batch_id,
