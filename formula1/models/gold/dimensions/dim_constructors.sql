@@ -3,14 +3,20 @@
         unique_key='constructor_id',
         incremental_strategy='merge',
         merge_update_columns=[
-            'constructor_name', 'nationality', 'nationality_region'
+            'constructor_name', 'nationality', 'nationality_region', 'updated_timestamp'
         ]
     )
 }}
 
+{% set max_updated_ts = get_max_updated_timestamp(this) if is_incremental() else none %}
+
 with constructors as (
 
     select * from {{ ref('silver_constructors') }}
+
+    {% if max_updated_ts is not none %}
+    where updated_timestamp > '{{ max_updated_ts }}'
+    {% endif %}
 
 ),
 

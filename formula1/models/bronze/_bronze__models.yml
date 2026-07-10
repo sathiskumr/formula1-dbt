@@ -28,3 +28,25 @@ models:
       - name: round
         data_tests:
           - not_null
+
+  - name: bronze_results
+    columns:
+      - name: season
+        data_tests:
+          - not_null:
+              config: {severity: warn}
+      - name: round
+        data_tests:
+          - not_null:
+              config: {severity: warn}
+
+  - name: bronze_sprints
+    columns:
+      - name: season
+        data_tests:
+          - not_null:
+              config: {severity: warn}
+      - name: round
+        data_tests:
+          - not_null:
+              config: {severity: warn}
