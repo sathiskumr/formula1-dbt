@@ -3,7 +3,7 @@
         unique_key='constructor_id',
         incremental_strategy='merge',
         merge_update_columns=[
-            'constructor_name', 'nationality', 'nationality_region'
+            'constructor_name', 'nationality', 'nationality_region', 'updated_timestamp'
         ]
     )
 }}

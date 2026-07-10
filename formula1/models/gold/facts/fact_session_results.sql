@@ -27,7 +27,6 @@ with results as (
         final_position,
         final_position_text,
         status,
-        batch_id,
         'RACE' as session_type
     from {{ ref('silver_results') }}
 
@@ -51,7 +50,6 @@ sprints as (
         final_position,
         final_position_text,
         status,
-        batch_id,
         'SPRINT' as session_type
     from {{ ref('silver_sprints') }}
 
