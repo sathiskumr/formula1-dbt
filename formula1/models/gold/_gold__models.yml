@@ -130,3 +130,112 @@ models:
           arguments:
             combination_of_columns: [season, round]
           config: {severity: error}
+      
+  
+  - name: fact_session_results
+    description: One row per driver per constructor per race/sprint session.
+      Union of silver_results and silver_sprints with derived performance flags.
+
+    config:
+      contract: {enforced: true}
+
+    data_tests:
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          arguments:
+            min_value: 1
+          config: {severity: warn}
+
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [season, round, constructor_id, driver_id, session_type]
+          config: {severity: error}
+
+    columns:
+      - name: season
+        data_type: int
+        data_tests:
+          - not_null
+
+      - name: round
+        data_type: int
+        data_tests:
+          - not_null
+
+      - name: constructor_id
+        data_type: string
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_constructors')
+                field: constructor_id
+              config: {severity: warn}
+              
+      - name: driver_id
+        data_type: string
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_drivers')
+                field: driver_id
+              config: {severity: warn}
+
+      - name: grid_position
+        data_type: int
+
+      - name: completed_laps
+        data_type: int
+
+      - name: car_number
+        data_type: int
+
+      - name: final_position
+        data_type: int
+
+      - name: final_position_text
+        data_type: string
+
+      - name: status
+        data_type: string
+
+      - name: is_win
+        data_type: boolean
+        data_tests:
+          - not_null
+      
+      - name: is_podium
+        data_type: boolean
+        data_tests:
+          - not_null
+      
+      - name: has_points
+        data_type: boolean
+        data_tests:
+          - not_null
+      
+      - name: is_pole
+        data_type: boolean
+        data_tests:
+          - not_null
+
+      - name: created_timestamp
+        data_type: timestamp
+
+      - name: updated_timestamp
+        data_type: timestamp
+
+      - name: session_type
+        data_type: string
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['RACE', 'SPRINT']
+      
+      - name: points
+        data_type: float
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+              config: {severity: warn}

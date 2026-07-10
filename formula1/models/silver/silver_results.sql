@@ -1,5 +1,6 @@
 {{
     config(
+        alias='results',
         unique_key=['season', 'round', 'constructor_id', 'driver_id'],
         incremental_strategy='merge',
         merge_update_columns=[
@@ -14,7 +15,13 @@
 
 with source as (
 
-    select * from {{ ref('silver_results') }}
+    select * from {{ ref('bronze_results') }}
+
+    {% if var('batch_id', none) is not none %}
+    where batch_id = '{{ var("batch_id") }}'
+    {% elif max_batch_id is not none %}
+    where batch_id > '{{ max_batch_id }}'
+    {% endif %}
 
 ),
 
@@ -60,7 +67,7 @@ latest_results as (
             order by batch_id desc
         ) as rn
     from valid
-)
+),
 
 deduped as (
 

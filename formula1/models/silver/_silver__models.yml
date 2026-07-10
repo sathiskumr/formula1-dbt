@@ -188,6 +188,15 @@ models:
     config:
       contract: {enforced: true}
 
+    data_tests:
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          arguments:
+            min_value: 1
+          config: {severity: warn}
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [season, round]
+          config: {severity: error}
+
     columns:
       - name: season
         data_type: int
@@ -248,16 +257,21 @@ models:
       - name: updated_timestamp
         data_type: timestamp
 
-    data_tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [season, round]
-          config: {severity: error}
-
   - name: silver_results
     description: One row per driver per race session result.
 
     config:
       contract: {enforced: true}
+
+    data_tests:
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          arguments:
+            min_value: 1
+          config: {severity: warn}
+
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [season, round, constructor_id, driver_id]
+          config: {severity: error}
 
     columns:
       - name: season
@@ -357,11 +371,7 @@ models:
 
       - name: updated_timestamp
         data_type: timestamp
-
-    data_tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [season, round, constructor_id, driver_id]
-          config: {severity: error}
+        
 
   - name: silver_sprints
     description: One row per driver per sprint session result.
@@ -369,6 +379,16 @@ models:
     config:
       contract: {enforced: true}
 
+    data_tests:
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          arguments:
+            min_value: 1
+          config: {severity: warn}
+
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [season, round, constructor_id, driver_id]
+          config: {severity: error}
+
     columns:
       - name: season
         data_type: int
@@ -467,8 +487,3 @@ models:
 
       - name: updated_timestamp
         data_type: timestamp
-
-    data_tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [season, round, constructor_id, driver_id]
-          config: {severity: error}
