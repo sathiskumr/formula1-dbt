@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: dev-ci-${{ github.event.pull_request.number }}
@@ -29,5 +30,17 @@ jobs:
       - run: uv python install 3.12
       - run: uv sync
       - run: cd formula1 && uv run dbt deps --profiles-dir _prod_profiles --target dev
-      - name: dbt build
-        run: cd formula1 && uv run dbt build --profiles-dir _prod_profiles --target dev
+      - name: Download latest prod-target artifact from main
+        uses: dawidd6/action-download-artifact@v21
+        with:
+          workflow: prod-build.yml
+          branch: main
+          name: prod-target
+          path: formula1/prod-target
+          workflow_conclusion: success
+          if_no_artifact_found: fail
+      - name: dbt build (slim CI)
+        run: |
+          cd formula1
+          uv run dbt build --profiles-dir _prod_profiles --target dev \
+            --select state:modified+ --defer --state ./prod-target
