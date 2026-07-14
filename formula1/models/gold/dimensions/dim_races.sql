@@ -8,9 +8,15 @@
     )
 }}
 
+{% set max_updated_ts = get_max_updated_timestamp(this) if is_incremental() else none %}
+
 with races as (
 
     select * from {{ ref('silver_races') }}
+
+    {% if max_updated_ts is not none %}
+    where updated_timestamp > '{{ max_updated_ts }}'
+    {% endif %}
 
 ),
 
