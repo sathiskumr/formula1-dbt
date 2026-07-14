@@ -1,5 +1,3 @@
--- Silver: Drivers. See models/silver/_silver__models.yml for docs + tests.
-
 {{
     config(
         alias='circuits',

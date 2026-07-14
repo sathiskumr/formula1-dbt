@@ -1,7 +1,7 @@
 [project]
 name = "formula1-dbt"
 version = "0.1.0"
-description = "Add your description here"
+description = "transform layers for formula1 project in dbt"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

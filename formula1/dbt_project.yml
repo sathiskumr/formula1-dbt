@@ -49,6 +49,6 @@ models:
 
 # Data tests: store failed rows for inspection, mirroring the
 # `_test_failures` schema pattern used by the original notebook DQ framework.
-# data_tests:
-#   +store_failures: true
-#   +schema: _test_failures
+data_tests:
+  +store_failures: true
+  +schema: _test_failures

@@ -28,7 +28,7 @@ models:
           - type: not_null
         data_tests:
           - not_null:
-              config: {severity: warn}
+              config: {severity: error}
 
       - name: date_of_birth
         data_type: date
@@ -89,7 +89,7 @@ models:
           - type: not_null
         data_tests:
           - not_null:
-              config: {severity: warn}
+              config: {severity: error}
 
       - name: nationality
         data_type: string
@@ -127,6 +127,8 @@ models:
     columns:
       - name: circuit_id
         data_type: string
+        constraints:
+          - type: not_null
         data_tests:
           - not_null:
               config: {severity: error}
