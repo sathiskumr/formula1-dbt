@@ -47,16 +47,6 @@ models:
       facts:
         +tags: ["gold", "fact"]
 
-  dbt_utils:
-    +docs:
-      show: false
-  dbt_expectations:
-    +docs:
-      show: false
-  dbt_date:
-    +docs:
-      show: false
-
 # Data tests: store failed rows for inspection, mirroring the
 # `_test_failures` schema pattern used by the original notebook DQ framework.
 data_tests:

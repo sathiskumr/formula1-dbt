@@ -63,32 +63,6 @@ unit_tests:
         - {driver_id: 'russell',    is_win: false, is_podium: true,  has_points: true,  is_pole: false}
         - {driver_id: 'sainz',      is_win: false, is_podium: false, has_points: false, is_pole: false}
 
-  - name: test_fact_session_results__race_and_sprint_both_present
-    description: >
-      Ensure race and sprint sessions are both present after unioning the two
-      datasets.
-
-    model: fact_session_results
-
-    overrides:
-      macros:
-        is_incremental: false
-
-    given:
-      - input: ref('silver_results')
-        rows:
-          - {season: 2024, round: 5, driver_id: "verstappen", constructor_id: "red_bull", grid_position: 1, final_position: 1, points: 25, status: "Finished"}
-
-      - input: ref('silver_sprints')
-        rows:
-          - {season: 2024, round: 5, driver_id: "verstappen", constructor_id: "red_bull", grid_position: 2, final_position: 2, points: 7, status: "Finished"}
-
-    expect:
-      rows:
-        - {driver_id: "verstappen", season: 2024, round: 5, session_type: "RACE"}
-
-        - {driver_id: "verstappen", season: 2024, round: 5, session_type: "SPRINT"}
-
   - name: test_fact_session_results__race_and_sprint_coexist
     description: A driver with both a race and sprint result on the same round should produce two distinct rows, keyed apart by session_type.
     model: fact_session_results

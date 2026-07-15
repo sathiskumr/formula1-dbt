@@ -1,4 +1,4 @@
-{% docs overview %}
+{% docs __overview__ %}
 
 # formula1-dbt
 
