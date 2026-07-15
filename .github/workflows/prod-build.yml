@@ -31,7 +31,7 @@ jobs:
       - run: uv sync
       - run: cd formula1 && uv run dbt deps --profiles-dir _prod_profiles --target prod
       - name: dbt build
-        run: cd formula1 && uv run dbt build --profiles-dir _prod_profiles --target prod
+        run: cd formula1 && uv run dbt build --profiles-dir _prod_profiles --target prod --exclude-resource-type unit_test
       - name: Upload prod target as artifact
         uses: actions/upload-artifact@v4
         with:
