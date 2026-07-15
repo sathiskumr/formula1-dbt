@@ -196,7 +196,8 @@ models:
             min_value: 1
           config: {severity: warn}
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [season, round]
+          arguments:
+            combination_of_columns: [season, round]
           config: {severity: error}
 
     columns:
@@ -272,7 +273,8 @@ models:
           config: {severity: warn}
 
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [season, round, constructor_id, driver_id]
+          arguments:
+            combination_of_columns: [season, round, constructor_id, driver_id]
           config: {severity: error}
 
     columns:
@@ -388,7 +390,8 @@ models:
           config: {severity: warn}
 
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [season, round, constructor_id, driver_id]
+          arguments:
+            combination_of_columns: [season, round, constructor_id, driver_id]
           config: {severity: error}
 
     columns:

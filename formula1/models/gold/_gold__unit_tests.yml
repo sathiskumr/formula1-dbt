@@ -62,3 +62,80 @@ unit_tests:
         - {driver_id: 'verstappen', is_win: true,  is_podium: true,  has_points: true,  is_pole: true}
         - {driver_id: 'russell',    is_win: false, is_podium: true,  has_points: true,  is_pole: false}
         - {driver_id: 'sainz',      is_win: false, is_podium: false, has_points: false, is_pole: false}
+
+  - name: test_fact_session_results__race_and_sprint_both_present
+    description: >
+      Ensure race and sprint sessions are both present after unioning the two
+      datasets.
+
+    model: fact_session_results
+
+    overrides:
+      macros:
+        is_incremental: false
+
+    given:
+      - input: ref('silver_results')
+        rows:
+          - {season: 2024, round: 5, driver_id: "verstappen", constructor_id: "red_bull", grid_position: 1, final_position: 1, points: 25, status: "Finished"}
+
+      - input: ref('silver_sprints')
+        rows:
+          - {season: 2024, round: 5, driver_id: "verstappen", constructor_id: "red_bull", grid_position: 2, final_position: 2, points: 7, status: "Finished"}
+
+    expect:
+      rows:
+        - {driver_id: "verstappen", season: 2024, round: 5, session_type: "RACE"}
+
+        - {driver_id: "verstappen", season: 2024, round: 5, session_type: "SPRINT"}
+
+  - name: test_fact_session_results__race_and_sprint_coexist
+    description: A driver with both a race and sprint result on the same round should produce two distinct rows, keyed apart by session_type.
+    model: fact_session_results
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: ref('silver_results')
+        rows:
+          - {season: 2024, round: 4, constructor_id: 'red_bull', driver_id: 'verstappen', final_position: 1, points: 25.0, status: 'Finished'}
+      - input: ref('silver_sprints')
+        rows:
+          - {season: 2024, round: 4, constructor_id: 'red_bull', driver_id: 'verstappen', final_position: 2, points: 7.0, status: 'Finished'}
+    expect:
+      rows:
+        - {driver_id: 'verstappen', session_type: 'RACE',   final_position: 1, is_win: true,  is_podium: true}
+        - {driver_id: 'verstappen', session_type: 'SPRINT', final_position: 2, is_win: false, is_podium: true}
+
+  - name: test_fact_session_results__bonus_point_without_podium
+    description: A finish outside the top 3 that still scores (e.g. a fastest-lap bonus point) should have has_points true but is_podium and is_win false.
+    model: fact_session_results
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: ref('silver_results')
+        rows:
+          - {season: 2024, round: 1, constructor_id: 'mclaren', driver_id: 'norris', grid_position: 6, points: 1.0, final_position: 8, status: 'Finished'}
+      - input: ref('silver_sprints')
+        rows: []
+    expect:
+      rows:
+        - {driver_id: 'norris', is_win: false, is_podium: false, has_points: true, is_pole: false}
+
+  - name: test_dim_constructors__unmapped_nationality_not_dropped
+    description: A constructor whose nationality has no row in ref_nationality_region should still appear, with nationality_region null.
+    model: dim_constructors
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: ref('silver_constructors')
+        rows:
+          - {constructor_id: 'new_team', constructor_name: 'New Racing', nationality: 'Martian'}
+      - input: source('gold_reference', 'ref_nationality_region')
+        rows:
+          - {nationality: 'British', region: 'Europe'}
+    expect:
+      rows:
+        - {constructor_id: 'new_team', nationality_region: null}
