@@ -1,0 +1,21 @@
+unit_tests:
+  - name: test_silver_drivers__dedup_keeps_latest_batch
+    description: Two rows for the same driver_id from different batches should collapse to the one with the highest batch_id.
+    model: silver_drivers
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: ref('bronze_drivers')
+        format: sql
+        rows: |
+          select 'verstappen' as driverId, named_struct('givenName', 'Max', 'familyName', 'Verstappen') as name,
+                 date('1997-09-30') as dateOfBirth, 'Dutch' as nationality,
+                 timestamp('2024-01-01 00:00:00') as ingestion_timestamp, 'batch_001.json' as source_file, '2024_01' as batch_id
+          union all
+          select 'verstappen' as driverId, named_struct('givenName', 'Max', 'familyName', 'Verstappen') as name,
+                 date('1997-09-30') as dateOfBirth, 'Dutch' as nationality,
+                 timestamp('2024-02-01 00:00:00') as ingestion_timestamp, 'batch_002.json' as source_file, '2024_02' as batch_id
+    expect:
+      rows:
+        - {driver_id: 'verstappen', driver_name: 'Max Verstappen', batch_id: '2024_02'}

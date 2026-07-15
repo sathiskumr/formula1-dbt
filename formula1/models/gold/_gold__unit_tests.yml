@@ -1,0 +1,64 @@
+unit_tests:
+  - name: test_dim_races__unmatched_circuit_not_filtered
+    description: >
+      Regression test: filtering `circuits` by the same incremental cutoff as
+      `races` caused the inner join to silently drop races whose circuit hadn't
+      changed recently. `circuits` must never be time-boxed by the cutoff.
+    model: dim_races
+    overrides:
+      macros:
+        is_incremental: true
+        get_max_updated_timestamp: "2000-01-01 00:00:00"
+    given:
+      - input: ref('silver_races')
+        rows:
+          - {season: 2024, round: 5, race_name: 'Miami GP', circuit_id: 'miami', updated_timestamp: '2024-05-06 00:00:00'}
+      - input: ref('silver_circuits')
+        rows:
+          - {circuit_id: 'miami', circuit_name: 'Miami International Autodrome', locality: 'Miami', country: 'USA', updated_timestamp: '2019-01-01 00:00:00'}
+      - input: this
+        rows: []
+    expect:
+      rows:
+        - {season: 2024, round: 5, race_name: 'Miami GP', circuit_name: 'Miami International Autodrome'}
+
+  - name: test_dim_drivers__unmapped_nationality_not_dropped
+    description: A driver whose nationality has no row in ref_nationality_region should still appear, with nationality_region null.
+    model: dim_drivers
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: ref('silver_drivers')
+        rows:
+          - {driver_id: 'new_driver', driver_name: 'Test Driver', nationality: 'Martian'}
+      - input: source('gold_reference', 'ref_nationality_region')
+        rows:
+          - {nationality: 'British', region: 'Europe'}
+    expect:
+      rows:
+        - {driver_id: 'new_driver', nationality: 'Martian', nationality_region: null}
+
+  - name: test_fact_session_results__derived_flags
+    description: >
+      Winner, podium-non-winner, and DNF cases for is_win/is_podium/has_points/is_pole.
+      The DNF row is the regression case: final_position is null for a non-finisher,
+      and before the coalesce() fix, final_position = 1 evaluated to null instead of
+      false, silently dropping the flag from downstream aggregations.
+    model: fact_session_results
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: ref('silver_results')
+        rows:
+          - {season: 2024, round: 1, constructor_id: 'red_bull', driver_id: 'verstappen', grid_position: 1, points: 25.0, final_position: 1,    status: 'Finished'}
+          - {season: 2024, round: 1, constructor_id: 'mercedes',  driver_id: 'russell',    grid_position: 4, points: 12.0, final_position: 3,    status: 'Finished'}
+          - {season: 2024, round: 1, constructor_id: 'ferrari',   driver_id: 'sainz',      grid_position: 3, points: 0.0,  final_position: null, status: 'Engine'}
+      - input: ref('silver_sprints')
+        rows: []
+    expect:
+      rows:
+        - {driver_id: 'verstappen', is_win: true,  is_podium: true,  has_points: true,  is_pole: true}
+        - {driver_id: 'russell',    is_win: false, is_podium: true,  has_points: true,  is_pole: false}
+        - {driver_id: 'sainz',      is_win: false, is_podium: false, has_points: false, is_pole: false}
