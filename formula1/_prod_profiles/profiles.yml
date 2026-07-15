@@ -13,7 +13,7 @@ formula1:
       catalog: formula1_dbt_dev
       schema: default
 
-      threads: 4
+      threads: 1
 
     prod:
       type: databricks
